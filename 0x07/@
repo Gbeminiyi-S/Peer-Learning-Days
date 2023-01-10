@@ -10,7 +10,7 @@ def matrix_mul(m_a, m_b):
 
     if not isinstance(m_b, list):
         raise TypeError('m_b must be a list')
-        
+
     if m_a == [] or m_a == [[]]:
         raise ValueError("m_a can't be empty")
     for row in m_a:
@@ -27,6 +27,35 @@ def matrix_mul(m_a, m_b):
         raise ValueError("m_b can't be empty")
     for row in m_b:
         if not isinstance(row, list):
+
+>>> add_integer(2, -5)
+-3
+
+>>> add_integer(-2.5, 3)
+1
+
+>>> add_integer(2)
+100
+
+>>> add_integer()
+Traceback (most recent call last):
+TypeError: add_integer() missing 1 required positional argument: 'a'
+
+>>> add_integer({1, 2}, 4)
+Traceback (most recent call last):
+TypeError: a must be an integer
+
+>>> add_integer(4, 'PLD')
+Traceback (most recent call last):
+TypeError: b must be an integer
+
+>>> add_integer(float('inf'))
+Traceback (most recent call last):
+OverflowError: cannot convert float infinity to integer
+
+>>> add_integer(float('NaN'))
+Traceback (most recent call last):
+ValueError: cannot convert float NaN to integer
             raise TypeError('m_b must be a list of lists')
         for element in row:
             if not isinstance(element, (int, float)):

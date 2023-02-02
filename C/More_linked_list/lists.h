@@ -30,6 +30,7 @@ listint_t *reverse_listint(listint_t **head);
 size_t print_listint_safe(const listint_t *head);
 size_t free_listint_safe(listint_t **h);
 listint_t *find_listint_loop(listint_t *head);
-size_t looped_printing(const listint_t *head);
+size_t looped_printing(const listint_t *head, const listint_t *loop_start);
+size_t looped_free(listint_t **h, listint_t *loop_start);
 
 #endif /* _LISTS_H_  */

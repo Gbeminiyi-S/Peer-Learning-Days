@@ -12,7 +12,14 @@ from models.review import Review
 class HBNBCommand(cmd.Cmd):
 
     prompt = "(hbnb) "
-    __classes = ["BaseModel", "User"]
+    __classes = ["BaseModel",
+                 "User",
+                 "State",
+                 "City",
+                 "Amenity",
+                 "Place",
+                 "Review"
+                 ]
 
     def do_quit(self, arg):
         """Quit command to exit the program
@@ -37,6 +44,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             new_object = eval(f"{args[0]}")()
             print(new_object.id)
+        storage.save()
 
     def do_show(self, arg):
         args = arg.split()
@@ -77,7 +85,7 @@ class HBNBCommand(cmd.Cmd):
         else:
             print([str(v) for k, v in storage.all().items() if k.startswith(args[0])])
 
-    def do_update:
+    def do_update(self, arg):
         args = arg.split()
 
         if len(args) == 0:
@@ -92,7 +100,42 @@ class HBNBCommand(cmd.Cmd):
             print("** attribute name missing **")
         elif len(args) == 3:
             print("** value missing **")
+        else:
+            obj_class = args[0]
+            obj_id = args[1]
+            obj_key = obj_class + "." + obj_id
+            obj = storage.all()[obj_key]
 
+            attr_name = args[2]
+            attr_value = args[3]
+
+            if attr_value[0] == '"':
+                attr_value = attr_value[1:-1]
+
+            if hasattr(obj, attr_name):
+                type_ = type(getattr(obj, attr_name))
+                if type_ in [str, float, int]:
+                    attr_value = type_(attr_value)
+                    setattr(obj, attr_name, attr_value)
+            else:
+                setattr(obj, attr_name, attr_value)
+            storage.save()
+
+    def default(self, arg):
+        args = arg.split('.')
+        if args[0] in self.__classes:
+            if args[1] == "all()":
+                self.do_all(args[0])
+            elif args[1] == "count()":
+                list_ = [v for k, v in storage.all().items() if k.startswith(args[0])]
+                print(len(list_))
+            elif args[1].startswith("show"):
+                id_ = args[1].split('"')[1]
+                self.do_show(f"{args[0]} {id_}")
+            elif args[1].startswith("destroy"):
+                id_ = args[1].split('"')[1]
+                self.do_destroy(f"{args[0]} {id_}")
+ 
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import cmd
+import re
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
@@ -106,19 +107,36 @@ class HBNBCommand(cmd.Cmd):
             obj_key = obj_class + "." + obj_id
             obj = storage.all()[obj_key]
 
-            attr_name = args[2]
-            attr_value = args[3]
+            if type(eval(argl[2])) == dict:
+                for k, v in eval(argl[2]).items():    
+                    attr_name = k
+                    attr_value = v
 
-            if attr_value[0] == '"':
-                attr_value = attr_value[1:-1]
+                    if attr_value[0] == '"':
+                        attr_value = attr_value[1:-1]
 
-            if hasattr(obj, attr_name):
-                type_ = type(getattr(obj, attr_name))
-                if type_ in [str, float, int]:
-                    attr_value = type_(attr_value)
-                    setattr(obj, attr_name, attr_value)
+                    if hasattr(obj, attr_name):
+                        type_ = type(getattr(obj, attr_name))
+                        if type_ in [str, float, int]:
+                            attr_value = type_(attr_value)
+                            setattr(obj, attr_name, attr_value)
+                    else:
+                        setattr(obj, attr_name, attr_value)
+            
             else:
-                setattr(obj, attr_name, attr_value)
+                attr_name = args[2]
+                attr_value = args[3]
+
+                if attr_value[0] == '"':
+                    attr_value = attr_value[1:-1]
+
+                if hasattr(obj, attr_name):
+                    type_ = type(getattr(obj, attr_name))
+                    if type_ in [str, float, int]:
+                        attr_value = type_(attr_value)
+                        setattr(obj, attr_name, attr_value)
+                else:
+                    setattr(obj, attr_name, attr_value)
             storage.save()
 
     def default(self, arg):
@@ -136,28 +154,17 @@ class HBNBCommand(cmd.Cmd):
                 id_ = args[1].split('"')[1]
                 self.do_destroy(f"{args[0]} {id_}")
             elif args[1].startswith("update"):
-                split_ = args[1].split('(')
-                split_ = split_[1].split(')')
-                if '{' in split_[0]:
-                    # if a dictionary is passed
-                    split_ = split_[0].split(", {")
-                    id_ = split_[0].strip('"')
-                    dict_ = '{' + split_[1]
-                    dict_ = (eval(dict_))
-
-                    for k, v in dict_.items():
-                        self.do_update(f"{args[0]} {id_} {k} {v}")
+                if "{" not in args[1]:
+                    split_ = re.split('"update"|", "|\"', args[1])
+                    id_ = split_[1]
+                    attr_name = split_[2]
+                    attr_value = split_[4]
+                    self.do_update(f'{args[0]} {id_} {attr_name} "{attr_value}"')
                 else:
-                    # if not a dictionary is passed
-                    split_ = split_[0].split(', ')
-                
-                    id_ = split_[0].strip('"')
-                
-                    attr_name = split_[1].strip('"')
-                    attr_value = split_[2].strip('"')
-                
-                    self.do_update(f"{args[0]} {id_} {attr_name} {attr_value}")
-
+                    split_ =  re.split('{', args[1])
+                    split_ =  re.split('}', split_[1])
+                    self.do_update(f'{args[0]}' + '{' + f'{split_}' + '}')
+                storage.save()
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

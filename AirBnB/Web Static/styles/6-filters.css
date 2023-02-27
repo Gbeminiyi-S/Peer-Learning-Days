@@ -24,7 +24,7 @@ button:hover {
 	opacity: 90%;
 }
 
-.locations, .amenities {
+.locations, .filters div.amenities {
 	height: 100%;
 	width: 25%;
 }

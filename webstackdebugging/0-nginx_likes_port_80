@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# comment
+cp -r /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx restart
